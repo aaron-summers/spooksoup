@@ -2,4 +2,3 @@ node_modules
 .env
 misc.txt
 rootkey.csv
-routes/home.js

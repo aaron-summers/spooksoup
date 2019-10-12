@@ -11,6 +11,7 @@ const auth = require('../routes/auth');
 const posts = require('../routes/posts');
 const dashboard = require('../routes/dashboard');
 const comments = require('../routes/comments');
+const home = require('../routes/home');
 
 //custom methods
 const {updateSchema, deleteFields, deleteField} = require('../functions/modifySchema');
@@ -43,6 +44,7 @@ app.use('/', auth);
 app.use('/', posts);
 app.use('/', dashboard);
 app.use('/', comments);
+app.use('/', home);
 
 
 // app.get('/', (req, res) => res.send('Hello World!'));
