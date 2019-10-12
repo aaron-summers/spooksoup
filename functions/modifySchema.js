@@ -7,15 +7,15 @@ const Comment = require("../models/Comment");
 //$unset removes fields
 
 const updateSchema = async () => {
-  const user = User.find({ avatar: { $exists: false } });
+  const post = Post.find({ likes: { $exists: false } });
 
-  await user.updateMany({}, { $set: { avatar: undefined } }, { multi: true });
+  await post.updateMany({}, { $set: { likes: undefined } }, { multi: true });
 };
 
 const deleteField = async () => {
-  await User.updateMany(
-    { avatar: { $exists: true }},
-    { $unset: { avatar: undefined } },
+  await Post.updateMany(
+    { likes: { $exists: true }},
+    { $unset: { likes: undefined } },
     { multi: true }
   );
 }; 

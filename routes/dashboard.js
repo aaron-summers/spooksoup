@@ -23,12 +23,14 @@ router.get("/dashboard/posts", verify, async (req, res) => {
       {
         $facet: {
           posts: [
-            { $limit: 2 },
+            { $limit: 10 },
             { $project: { _id: 1, title: 1, content: 1 } }
           ]
         }
       }
     ]);
+
+    if (!userPosts) return res.status(206).send({data: {user: current_user}});
 
     res.send({ data: [{ user: current_user }, ...userPosts] });
   } catch (error) {
@@ -101,4 +103,5 @@ router.get("/posts/:id/comments", verify, async (req, res) => {
     res.status(500).send({ error: "Internal server error." });
   }
 });
+
 module.exports = router;

@@ -23,6 +23,7 @@ mongoose.connect(
   `${process.env.DB_URL}`,  
   { useNewUrlParser: true, useUnifiedTopology: true }, () => {
       // updateSchema();
+      // deleteField();
       console.log("connection enabled")
   }
 );
@@ -39,7 +40,6 @@ app.use(
 //routes
 app.use('/', users);
 app.use('/', auth);
-// app.use('/', current_user);
 app.use('/', posts);
 app.use('/', dashboard);
 app.use('/', comments);

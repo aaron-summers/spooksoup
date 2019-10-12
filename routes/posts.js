@@ -23,7 +23,8 @@ router.post('/posts', verify, async (req, res) => {
         title: req.body.title,
         content: req.body.content,
         user: req.user.id,
-        username: user.username
+        username: user.username,
+        likes: 0
     })
 
     try {
@@ -42,7 +43,7 @@ router.post('/posts', verify, async (req, res) => {
 //get all posts
 router.get('/posts', verify, async (req, res) => {
     try {
-        const posts = await Post.find().sort({date: -1})
+        const posts = await Post.find({}).sort({date: -1})
         res.send(posts)
     } catch (error) {
         res.status(500).send({error: "Oops! Something went wrong."})
@@ -90,30 +91,29 @@ router.delete('/posts/:id', verify, async (req, res) => {
 router.patch("/posts/:id/like", verify, async (req, res) => {
     if (!req.params.id) return res.status(400).send({ error: "Invalid parameters." });
 
+    const post = await Post.findById(req.params.id);
+    if (!post) return res.status(404).send({ error: "Post not found." });
+
     try {
-        const post = await Post.findById(req.params.id);
-        if (!post) return res.status(404).send({ error: "Post not found." });
+        const isLiked = await Like.findOne({$and: [{user: req.user.id}, {post: req.params.id}]})
 
-        const existingLike = post.likes.find(like => like.user.toString() == req.user.id);
-
-        if (!existingLike) {
+        if (!isLiked) {
             const like = new Like({
                 user: req.user.id,
                 post: post.id
             });
 
             await like.save();
-            post.likes.unshift(like);
+            post.likes++;
             await post.save();
+            res.status(201).send(post);
 
-            res.status(201).send({ post, like: true });
         } else {
-            await Like.findByIdAndDelete(existingLike.id);
-            const postIndex = post.likes.map(like => like.user.toString()).indexOf(req.user.id);
-            post.likes.splice(postIndex, 1);
+            await Like.findByIdAndDelete(isLiked.id);
+            post.likes--;
             await post.save();
 
-            res.send({post, like: false});
+            res.send(post);
         }
 
     } catch (error) {

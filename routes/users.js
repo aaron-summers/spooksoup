@@ -25,7 +25,7 @@ const checkEmail = userEmail => {
 };
 
 //signup
-router.post("/signup", async (req, res) => {
+router.post("/register", async (req, res) => {
   const { error } = signupValidation(req.body);
 
   if (error) {
@@ -101,7 +101,7 @@ router.get("/user/profile", verify, async (req, res) => {
 });
 
 //get all posts from current user
-router.get("/posts", verify, async (req, res) => {
+router.get("/user/posts", verify, async (req, res) => {
   try {
     const current_user = await User.findById(req.user.id).select(
       "-password -__v"
