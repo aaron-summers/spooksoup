@@ -12,6 +12,8 @@ const posts = require('../routes/posts');
 const dashboard = require('../routes/dashboard');
 const comments = require('../routes/comments');
 const home = require('../routes/home');
+const renew = require('../routes/token');
+// const userToken = require('..')
 
 //custom methods
 const {updateSchema, deleteFields, deleteField} = require('../functions/modifySchema');
@@ -45,6 +47,7 @@ app.use('/', posts);
 app.use('/', dashboard);
 app.use('/', comments);
 app.use('/', home);
+app.use('/', renew);
 
 
 // app.get('/', (req, res) => res.send('Hello World!'));

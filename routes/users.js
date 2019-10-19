@@ -6,6 +6,7 @@ const fs = require('fs');
 const multer = require('multer');
 //custom imports
 const User = require("../models/User");
+const UserToken = require('../models/UserToken');
 // const aws = require('aws-sdk');
 
 //custom methods
@@ -72,12 +73,15 @@ router.post("/register", async (req, res) => {
     jwt.sign(
       payload,
       process.env.JWT_SECRET,
-      { expiresIn: "7 days" },
-      (err, token) => {
+      { expiresIn: "15 minutes" },
+      async (err, token) => {
         if (err) throw err;
-        res.send({
+        let auth = new UserToken ({
+          user: user._id,
           token: token
-        });
+        })
+        await auth.save()
+        res.send({token: token});
       }
     );
   } catch (error) {
