@@ -14,7 +14,7 @@ router.post('/token/renew', async (req, res) => {
     // if (error.message.toLowerCase() === "jwt expired".toLowerCase()) {
     const payload = jwt.verify(token, process.env.JWT_SECRET, {ignoreExpiration: true})
     const userAuth = await UserToken.find({$and: [{ user:  {$eq: payload.user.id}}, { token: {$eq: token} }]})
-    if (!userAuth) return res.status(400).send({error: {message: "Invalid token.", status: 400}})
+    if (!userAuth) return res.send({error: {status: 400, message: "Invalid token."}})
 
     try {
         generateToken(res, payload.user.id)

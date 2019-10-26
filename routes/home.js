@@ -12,9 +12,9 @@ const verify = require('../middleware/verify');
 router.get('/recommended', verify, async (req, res) => {
     try {
         const posts = await Post.aggregate([
-          { $sort: { likes: -1 } },
+          { $sort: { likes: -1, date: -1 } },
           { $limit: 10 },
-          { $project: { _id: 1, title: 1, content: 1, likes: 1 } }
+          { $project: { _id: 1, title: 1, content: 1, likes: 1, tags: 1 } }
         ]);
         
         res.status(200).send({posts: posts})

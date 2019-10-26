@@ -4,9 +4,16 @@ const validator = require('validator');
 
 //custom imports
 const verify = require('../middleware/verify');
+
+//models
 const User = require('../models/User');
 const Post = require('../models/Post');
 const Like = require('../models/Like');
+const Tag = require('../models/Tag');
+
+const trimValues = (vals) => {
+    return vals.toLowerCase().trim().replace(/[^\w]/gi, '')
+}
 
 //create a post
 router.post('/posts', verify, async (req, res) => {
@@ -17,7 +24,7 @@ router.post('/posts', verify, async (req, res) => {
 
     const user = await User.findById(req.user.id).select('-password');
 
-    if (!user) return res.status(401).send({error: "Unauthorized request."})
+    if (!user) return res.status(401).send({error: "Unauthorized request."}) 
 
     const new_post = new Post({
         title: req.body.title,
@@ -28,6 +35,36 @@ router.post('/posts', verify, async (req, res) => {
     })
 
     try {
+        if (req.body.tags && req.body.tags.length <= 25) {
+          let postTags = [];
+          postTags.push(...req.body.tags);
+
+          postTags = postTags.filter(tag => /\S/.test(tag));
+
+        //   console.log(postTags)
+
+          for (let i = 0; i < postTags.length; i++) {
+
+            const trimmedTags = trimValues(postTags[i]);
+
+            // console.log(trimmedTags)
+
+            const tags = await Tag.find({
+              name: { $eq: postTags[i].toLowerCase().trim().replace(/[^\w]/gi, '') }
+            });
+
+            console.log(tags)
+
+            if (!tags.length) {
+                console.log("creating")
+                const newTag = new Tag;
+                newTag.name = trimmedTags
+                await newTag.save(); 
+            }
+            
+            new_post.tags.push(trimmedTags);
+          }
+        }
         const post = new_post;
         await post.save();
         //the following two lines will probably not be scalable
@@ -36,7 +73,8 @@ router.post('/posts', verify, async (req, res) => {
         res.status(201).send(post);
 
     } catch (error) {
-        res.status(500).send({error: "Oops! Something went wrong."})
+        console.log(error)
+        res.status(500).send({error: error})
     }
 })
 

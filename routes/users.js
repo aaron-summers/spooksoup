@@ -89,18 +89,33 @@ router.post("/register", async (req, res) => {
   }
 });
 
-router.get("/user/profile", verify, async (req, res) => {
+//get user by id 
+router.get("/users/:id", verify, async (req, res) => {
   try {
-    const current_user = await User.findById(req.user.id).select(
-      "-password -__v"
+    const current_user = await User.findById(req.params.id).select(
+      "_id displayName"
     );
 
     if (!current_user)
-      return res.status(401).send({ error: "Unauthorized request." });
+      return res.send({ status: 401, error: "Unauthorized request." });
 
     res.send(current_user);
   } catch (error) {
-    res.status(500).send({ error: "Oops! Something went wrong." });
+    res.status(500).send({ error: error });
+  }
+});
+
+//get logged in user
+router.get("/home/me", verify, async (req, res) => {
+  try {
+    const current_user = await User.findById(req.user.id).select("-password -__v -forename -surname -created -updated -email")
+
+    if (!current_user)
+      return res.send({ status: 401, error: "Unauthorized request." });
+      // console.log("WOIUG")
+      res.send(current_user);
+  } catch (error) {
+    res.status(500).send({ error: error });
   }
 });
 
@@ -123,6 +138,18 @@ router.get("/user/posts", verify, async (req, res) => {
     console.log(error);
     res.status(500).send({ error: "Couldn't get posts." });
   }
+});
+
+//search for users
+router.patch('/:username', verify, async (req, res) => {
+    const user = await User.find({username: {'$regex': req.params.username}}, '_id displayName email');
+    if (!user) return res.send({status: 404, error: "Not Found."});
+
+    try {
+        res.send(user)
+    } catch (error) {
+        res.status(500).send({error: "Something went wrong."})
+    }
 });
 
 

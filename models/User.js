@@ -37,13 +37,6 @@ const userSchema = new mongoose.Schema({
         min: 2,
         max: 255
     },
-    contacts: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            default: null,
-            ref: 'user'
-        }
-    }],
     created: {
         type: Date, 
         default: Date.now()

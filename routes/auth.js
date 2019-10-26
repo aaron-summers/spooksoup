@@ -19,7 +19,7 @@ router.get('/auth/verify', verify, async (req, res) => {
     const user = await User.findById(req.user.id).select("_id displayName");
     res.send( user )
   } catch (error) {
-    res.status(401).send({error: error})
+    res.status(500).send({error: error})
   }
 });
 
@@ -39,7 +39,7 @@ router.post('/auth', async (req, res) => {
 
     const isAuthenticated = await bcrypt.compare(req.body.password, user.password);
 
-    if (!isAuthenticated) return res.status(401).send({error: {message: "Invalid Credentials.", status: 401}})
+    if (!isAuthenticated) return res.send({error: {status: 401, message: "Invalid Credentials."}})
 
     const token = generateToken(res, user._id)
 
