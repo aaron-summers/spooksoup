@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const validator = require('validator');
 
-//custom imports
+//methods
+const {trimValues} = require("../functions/validation");
 const verify = require('../middleware/verify');
 
 //models
@@ -11,9 +12,9 @@ const Post = require('../models/Post');
 const Like = require('../models/Like');
 const Tag = require('../models/Tag');
 
-const trimValues = (vals) => {
-    return vals.toLowerCase().trim().replace(/[^\w]/gi, '')
-}
+// const trimValues = (vals) => {
+//     return vals.toLowerCase().trim().replace(/[^\w]/gi, '')
+// }
 
 //create a post
 router.post('/posts', verify, async (req, res) => {
@@ -41,8 +42,6 @@ router.post('/posts', verify, async (req, res) => {
 
           postTags = postTags.filter(tag => /\S/.test(tag));
 
-        //   console.log(postTags)
-
           for (let i = 0; i < postTags.length; i++) {
 
             const trimmedTags = trimValues(postTags[i]);
@@ -53,10 +52,10 @@ router.post('/posts', verify, async (req, res) => {
               name: { $eq: postTags[i].toLowerCase().trim().replace(/[^\w]/gi, '') }
             });
 
-            console.log(tags)
+            // console.log(tags)
 
             if (!tags.length) {
-                console.log("creating")
+                console.log(tags)
                 const newTag = new Tag;
                 newTag.name = trimmedTags
                 await newTag.save(); 
@@ -66,7 +65,7 @@ router.post('/posts', verify, async (req, res) => {
           }
         }
         const post = new_post;
-        await post.save();
+        // await post.save();
         //the following two lines will probably not be scalable
         // user.posts.push(post._id);
         // await user.save();

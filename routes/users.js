@@ -11,7 +11,7 @@ const UserToken = require('../models/UserToken');
 
 //custom methods
 const verify = require('../middleware/verify');
-const { signupValidation } = require("../functions/validation");
+const { signupValidation, trimValues, trimWithCasing } = require("../functions/validation");
 const {aws} = require("../middleware/awsauth");
 const s3 = new aws.S3();
 
@@ -27,24 +27,27 @@ const checkEmail = userEmail => {
 
 //signup
 router.post("/register", async (req, res) => {
-  const { error } = signupValidation(req.body);
+  // const { error } = signupValidation(req.body);
 
-  if (error) {
-    return res.status(400).send({ error: error.details[0].message });
-  }
+  // if (error) {
+  //   return res.status(400).send({ error: error.details, summary: "Username must only contain alphanumeric characters with the optional addition of hyphens or underscores." });
+  // }
 
   // validation
-  const isUsernameTaken = await checkUsername(req.body.username);
+  const trimmedUsername = trimValues(req.body.username);
+  // const trimmedDisplayName = trimWithCasing(req.body.displayName);
+
+  const isUsernameTaken = await checkUsername(trimmedUsername);
   if (isUsernameTaken) {
     return res.status(409).send({ error: "This username is taken." });
   }
 
   try {
-    let user = await checkEmail(req.body.email);
-    if (user) {
+    let existingEmail = await checkEmail(req.body.email);
+    if (existingEmail) {
       return res
         .status(409)
-        .send({ error: "The email you entered is already in use." });
+        .send({ status: 409, error: "An account with this email already exists." });
     }
 
     //encryption
@@ -52,16 +55,23 @@ router.post("/register", async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
 
     //lowercase username for easy querying
-    const lowercaseUsername = req.body.username.toLowerCase();
+    // const lowercaseUsername = req.body.username.toLowerCase();
 
-    user = new User({
-      username: lowercaseUsername,
-      displayName: req.body.username,
-      email: req.body.email,
-      password: hashedPassword
-    });
+    const user = new User;
+    if (!req.body.displayName) user.displayName = trimmedUsername;
+    
+      user.username = trimmedUsername
+      if (req.body.displayName) {
+        user.displayName = trimWithCasing(req.body.displayName);
+      } 
+      user.email = req.body.email
+      user.password = hashedPassword
+    // });
+
+    // console.log(trimWithCasing(req.body.displayName));
 
     await user.save();
+    // console.log(user.displayName)
 
     const payload = {
       user: {
@@ -85,7 +95,7 @@ router.post("/register", async (req, res) => {
       }
     );
   } catch (error) {
-    res.status(500).send("Oops! Something went wrong.");
+    res.status(500).send({error: "Something went wrong."});
   }
 });
 
