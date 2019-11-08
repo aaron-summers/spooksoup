@@ -37,6 +37,10 @@ const userSchema = new mongoose.Schema({
         min: 2,
         max: 255
     },
+    spotlight: {
+        type: Boolean,
+        default: true
+    },
     created: {
         type: Date, 
         default: Date.now()

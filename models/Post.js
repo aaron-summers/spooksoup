@@ -3,7 +3,6 @@ const mongoose = require("mongoose");
 const postSchema = new mongoose.Schema({
   title: {
     type: String,
-    required: true,
     min: 2
   },
   content: {
@@ -27,6 +26,10 @@ const postSchema = new mongoose.Schema({
     default: []
   }],
   story: {
+    type: Boolean,
+    default: false
+  },
+  journal: {
     type: Boolean,
     default: false
   },

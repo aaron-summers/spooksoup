@@ -70,8 +70,8 @@ router.post("/register", async (req, res) => {
 
     // console.log(trimWithCasing(req.body.displayName));
 
-    await user.save();
-    // console.log(user.displayName)
+    // await user.save();
+    console.log({name: user.username, handle: user.displayName})
 
     const payload = {
       user: {
@@ -90,7 +90,7 @@ router.post("/register", async (req, res) => {
           user: user._id,
           token: token
         })
-        await auth.save()
+        // await auth.save()
         res.send({token: token});
       }
     );

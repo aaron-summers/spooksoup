@@ -18,22 +18,29 @@ const Tag = require('../models/Tag');
 
 //create a post
 router.post('/posts', verify, async (req, res) => {
-    const doesTitleExist = validator.isEmpty(req.body.title);
+    // const doesTitleExist = validator.isEmpty(req.body.title);
     // console.log(doesTitleExist)
 
-    if(doesTitleExist) return res.status(400).send({error: "Title is required."});
+    // if(doesTitleExist) return res.status(400).send({error: "Title is required."});
 
     const user = await User.findById(req.user.id).select('-password');
 
     if (!user) return res.status(401).send({error: "Unauthorized request."}) 
 
-    const new_post = new Post({
-        title: req.body.title,
-        content: req.body.content,
-        user: req.user.id,
-        username: user.username,
-        likes: 0
-    })
+    const new_post = new Post;
+        // title: req.body.title,
+        // content: req.body.content,
+        // user: req.user.id,
+        // username: user.username,
+        // likes: 0
+        if (req.body.title) new_post.title = req.body.title;
+        new_post.content = req.body.content;
+        new_post.user = req.user.id;
+        new_post.username = user.username;
+        if (req.body.story === true) new_post.story = true;
+        if (req.body.journal === true) new_post.journal = true;
+        new_post.likes = 0;
+    // })
 
     try {
         if (req.body.tags && req.body.tags.length <= 25) {
@@ -53,9 +60,13 @@ router.post('/posts', verify, async (req, res) => {
             });
 
             // console.log(tags)
+            if (tags.length) {
+                console.log(tags)
+            
+            }
 
             if (!tags.length) {
-                console.log(tags)
+                // console.log(tags)
                 const newTag = new Tag;
                 newTag.name = trimmedTags
                 await newTag.save(); 
@@ -65,7 +76,7 @@ router.post('/posts', verify, async (req, res) => {
           }
         }
         const post = new_post;
-        // await post.save();
+        await post.save();
         //the following two lines will probably not be scalable
         // user.posts.push(post._id);
         // await user.save();
@@ -158,5 +169,9 @@ router.patch("/posts/:id/like", verify, async (req, res) => {
     }
 
 });
+
+router.get("/tags", verify, async (req, res) => {
+    // const 
+})
 
 module.exports = router;

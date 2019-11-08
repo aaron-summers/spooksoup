@@ -25,7 +25,7 @@ const port = process.env.port || 3000;
 mongoose.connect(
   `${process.env.DB_URL}`,  
   { useNewUrlParser: true, useUnifiedTopology: true }, () => {
-      // updateSchema();
+      // updateSchema()
       // deleteField();
       console.log("connection enabled")
   }
