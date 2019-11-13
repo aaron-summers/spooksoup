@@ -4,10 +4,12 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const fs = require('fs');
 const multer = require('multer');
+const uuid = require('uuid/v4');
+
 //custom imports
 const User = require("../models/User");
 const UserToken = require('../models/UserToken');
-// const aws = require('aws-sdk');
+const Media = require("../models/Media");
 
 //custom methods
 const verify = require('../middleware/verify');
@@ -163,8 +165,8 @@ router.patch('/:username', verify, async (req, res) => {
 });
 
 
-//avatar image upload multer middleware
-let upload = multer({dest: 'temp/', limits: {fieldSize: 4 * 1024 * 1024}});
+//avatar image upload multer middleware max 5MB
+let upload = multer({dest: 'temp/', limits: {files: 1, fieldSize: 5 * (1024 * 1024)}});
 
 //edit profile - upload avatar image
 router.patch('/user/avatar', verify, upload.single('avatar'), async (req, res) => {
@@ -174,19 +176,22 @@ router.patch('/user/avatar', verify, upload.single('avatar'), async (req, res) =
 
   try {
     //paramaters for calling upload
+    const randUid = uuid();
     let params = {
       ACL: 'public-read',
       Bucket: process.env.BUCKET_NAME,
       Body: fs.createReadStream(req.file.path),
       ContentType: req.file.mimetype,
-      Key: `${user._id}/avatar/${req.file.originalname}`
+      ServerSideEncryption: 'AES256',
+      Key: `${user._id}/avatar/${randUid}-${req.file.originalname}`
     };
 
     //upload image
     s3.upload(params, async (err, data) => {
-      if (err) throw err;
+      if (err) res.send({error: err});
       
       if (data) {
+        console.log(data)
         const location = data.Location;
 
         user.avatar = location;
@@ -197,6 +202,14 @@ router.patch('/user/avatar', verify, upload.single('avatar'), async (req, res) =
       //delete from temp folder on host
       const path = req.file.path;
       fs.unlinkSync(path);
+
+      const media = new Media({
+        user: user._id,
+        url: data.Location,
+        key: data.key
+      })
+
+      media.save();
 
     });
   } catch (error) {

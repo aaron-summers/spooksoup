@@ -17,6 +17,10 @@ const postSchema = new mongoose.Schema({
   username: {
     type: String
   },
+  media: {
+    type: String,
+    default: null
+  },
   likes: {
     type: Number,
     default: 0
