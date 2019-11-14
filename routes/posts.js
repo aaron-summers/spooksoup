@@ -43,11 +43,13 @@ router.post("/posts", verify, upload.single("post"), async (req, res) => {
   new_post.content = req.body.content;
   new_post.user = req.user.id;
   new_post.username = user.username;
+  new_post.userAvatar = user.avatar;
+  if (!req.file) new_post.media === undefined;
   if (req.body.story === true) new_post.story = true;
   if (req.body.journal === true) new_post.journal = true;
   new_post.likes = 0;  
 
-
+    // console.log(new_post)
   try {
 
     if (req.body.tags && req.body.tags.length <= 25) {
@@ -100,10 +102,8 @@ router.post("/posts", verify, upload.single("post"), async (req, res) => {
     //upload image
     s3.upload(params, async (err, data) => {
         if (err) res.send({ error: "Oops! Couldn't upload file. Please try again." });
-        // console.log(data);
         const location = data.Location;
         new_post.media = location;
-        // console.log(new_post)
         await new_post.save();
 
         //add to media collections
@@ -116,15 +116,16 @@ router.post("/posts", verify, upload.single("post"), async (req, res) => {
 
         //delete from temp folder on host
         const path = req.file.path;
-        // console.log(path)
         fs.unlinkSync(path);        
 
         res.status(201).send(new_post);
     });
     }
 
+    await new_post.save();
+    res.status(201).send(new_post);
+
   } catch (error) {
-    // console.log(error);
     res.status(500).send({ error: error });
   }
 });

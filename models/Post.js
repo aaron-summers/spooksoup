@@ -17,6 +17,10 @@ const postSchema = new mongoose.Schema({
   username: {
     type: String
   },
+  userAvatar: {
+    type: String,
+    default: undefined
+  },
   media: {
     type: String,
     default: null

@@ -10,6 +10,7 @@ const uuid = require('uuid/v4');
 const User = require("../models/User");
 const UserToken = require('../models/UserToken');
 const Media = require("../models/Media");
+const Post = require("../models/Post")
 
 //custom methods
 const verify = require('../middleware/verify');
@@ -117,6 +118,19 @@ router.get("/users/:id", verify, async (req, res) => {
   }
 });
 
+//get user avatar
+router.get("/users/:id/avatar", verify, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id).select("avatar");
+
+    if (!user) return res.send({status: 401, error: "Unauthorized request."});
+
+    res.send(user)
+  } catch (error) {
+    res.status(500).send(error)
+  }
+})
+
 //get logged in user
 router.get("/home/me", verify, async (req, res) => {
   try {
@@ -191,11 +205,12 @@ router.patch('/user/avatar', verify, upload.single('avatar'), async (req, res) =
       if (err) res.send({error: err});
       
       if (data) {
-        console.log(data)
+        // console.log(data)
         const location = data.Location;
 
         user.avatar = location;
         user.updated = Date.now();
+        await Post.updateMany({ user: user._id }, { $set: { userAvatar: location } });
         await user.save();
         res.status(202).send(user);
       }

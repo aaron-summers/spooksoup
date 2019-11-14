@@ -8,9 +8,9 @@ const Tag = require("../models/Tag");
 //$unset removes fields
 
 const updateSchema = async () => {
-  const post = Post.find({ media: { $exists: false } });
+  const post = Post.find({ userAvatar: { $exists: false } });
 
-  await post.updateMany({}, { $set: { media: null } }, { multi: true });
+  await post.updateMany({}, { $set: { userAvatar: null } }, { multi: true });
 };
 
 const deleteField = async () => {

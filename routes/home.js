@@ -14,8 +14,10 @@ router.get('/recommended', verify, async (req, res) => {
         const posts = await Post.aggregate([
           { $sort: { likes: -1, date: -1 } },
           { $limit: 10 },
-          { $project: { _id: 1, title: 1, content: 1, likes: 1, tags: 1 } }
+          { $project: { _id: 1, title: 1, content: 1, likes: 1, tags: 1, media: 1, user: 1, userAvatar: 1 } }
         ]);
+
+        // console.log(posts)
         
         res.status(200).send({posts: posts})
     } catch {
