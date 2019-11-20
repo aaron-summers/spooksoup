@@ -7,8 +7,40 @@ const Post = require("../models/Post");
 const verify = require("../middleware/verify");
 
 
+//get user profile 
+router.get("/user/:username", verify, async (req, res) => {
+  try {
+    const current_user = await User.findById(req.user.id).select(
+      "-password -__v"
+    );
+
+    if (!current_user)
+      return res.send({ status: 401, error: "Unauthorized request." });
+
+    const requestedUser = await User.findOne({
+      username: req.params.username
+    }).select("-password -__v");
+    if (!requestedUser)
+      return res.send({ status: 404, error: "user not found" });
+
+      // console.log(current_user._id)
+      // console.log(requestedUser._id)
+
+
+    if (current_user._id.toString() === requestedUser._id.toString()) {
+      console.log("your profile");
+    } else {
+      console.log("public data only")
+    }
+
+    res.send(requestedUser);
+  } catch (error) {
+    res.status(500).send({ error: "Oops! Something went wrong." });
+  }
+});
+
 //get 15 initial posts
-router.get("/dashboard/posts", verify, async (req, res) => {
+router.get("/profile/posts", verify, async (req, res) => {
   try {
     const current_user = await User.findById(req.user.id).select(
       "-password -__v -email"
@@ -40,9 +72,9 @@ router.get("/dashboard/posts", verify, async (req, res) => {
 });
 
 //paginated posts after the initial request with an offset query
-router.get('/dashboard/posts', verify, async (req, res) => {
+router.get('/profile/posts', verify, async (req, res) => {
   const current_user = await User.findById(req.user.id).select("-password -__v -email");
-  if (!current_user) return res.status(404).send({error: "User not found."});
+  if (!current_user) return res.send({status: 404, error: "User not found."});
 
   try {
 
@@ -61,7 +93,7 @@ router.get('/dashboard/posts', verify, async (req, res) => {
         $facet: {
           posts: [
             { $skip: parseInt(req.query.offset) },
-            { $limit: 10 },
+            { $limit: 3 },
             { $project: { _id: 1, title: 1, content: 1 } }
           ]
         }

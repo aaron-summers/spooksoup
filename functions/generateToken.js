@@ -11,7 +11,7 @@ const generateToken = async (res, userId) => {
       }
     };    
 
-    jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "1 minute"}, async (err, token) => {
+    jwt.sign(payload, process.env.JWT_SECRET, {expiresIn: "10 seconds"}, async (err, token) => {
         let tokenCollection = await UserToken.findOne({ user: payload.user.id });
         if (!tokenCollection) {
             let newUserToken = new UserToken({

@@ -13,6 +13,8 @@ const dashboard = require('../routes/dashboard');
 const comments = require('../routes/comments');
 const home = require('../routes/home');
 const renew = require('../routes/token');
+const _ = require("lodash")
+const {fileName} = require("../functions/files")
 // const userToken = require('..')
 
 //custom methods
@@ -21,13 +23,16 @@ const {updateSchema, deleteFields, deleteField} = require('../functions/modifySc
 
 const port = process.env.port || 3000;
 
+
+
 //db connection
 mongoose.connect(
   `${process.env.DB_URL}`,  
   { useNewUrlParser: true, useUnifiedTopology: true }, () => {
       // updateSchema()
       // deleteField();
-      console.log("connection enabled")
+      // fileName()
+    console.log("connection enabled")
   }
 );
 

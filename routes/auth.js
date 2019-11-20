@@ -17,9 +17,10 @@
 router.get('/auth/verify', verify, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("_id displayName");
-    res.send( user )
+    const response = {user, valid: true}
+    res.send( response )
   } catch (error) {
-    res.status(500).send({error: error})
+    res.status(500).send({error, valid: false})
   }
 });
 
@@ -35,7 +36,7 @@ router.post('/auth', async (req, res) => {
     
     if (req.body.username) user = await User.findOne({ username: req.body.username.toLowerCase() });
 
-    if (!user) return res.status(401).send({error: {message: "Unauthorized. Invalid Credentials.", status: 401}});
+    if (!user) return res.send({error: {message: "Invalid Credentials.", status: 401}});
 
     const isAuthenticated = await bcrypt.compare(req.body.password, user.password);
 

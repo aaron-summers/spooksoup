@@ -6,19 +6,6 @@ const User = require('../models/User');
 const Post = require("../models/Post");
 const verify = require('../middleware/verify');
 
-router.get('/user/profile', verify, async (req, res) => {
-    try {
-        const current_user = await User.findById(req.user.id)
-          .select("-password -__v");
-
-        if (!current_user) return res.status(401).send({error: "Unauthorized request."});
-
-        res.send(current_user)
-
-    } catch (error) {
-        res.status(500).send({error: "Oops! Something went wrong."})
-    }
-})
 
 //get all posts from current user
 router.get('/posts', verify, async (req, res) => {
